@@ -5,69 +5,42 @@ import re
 app = Flask(__name__)
 CORS(app)
 
-# Fast, deterministic moderation (hackathon-stable)
-HATE = {"nazi", "hate"}
-THREATS = {"kill", "bomb", "terror"}
-SEXUAL_VIOLENCE = {"rape"}
-DRUGS = {"drugs"}
-FRAUD = {"fraud", "scam", "fake", "cheat", "steal", "spam"}
-MILD_PROFANITY = {"damn", "hell"}
+# Fast regex moderation (NO ML deps)
+HATE = {"nazi", "hate", "kill", "bomb", "rape", "drugs", "scam", "fraud"}
 
 def classify(text: str):
     tokens = set(re.findall(r"[a-z']+", text.lower()))
+    hits = sorted(list(tokens & HATE))
+    
+    if any(word in tokens for word in ["rape", "kill", "bomb"]):
+        return 95, "blocked", "Dangerous content detected"
+    if hits:
+        return 75, "warning", "Content flagged"
+    return 5, "clean", "Safe"
 
-    hits = {
-        "hate": sorted(list(tokens & HATE)),
-        "threat": sorted(list(tokens & THREATS)),
-        "sexual_violence": sorted(list(tokens & SEXUAL_VIOLENCE)),
-        "drugs": sorted(list(tokens & DRUGS)),
-        "fraud": sorted(list(tokens & FRAUD)),
-        "profanity": sorted(list(tokens & MILD_PROFANITY)),
-    }
+@app.route('/')
+def home():
+    return jsonify({"message": "🛡️ YakSafe API LIVE! Hackathon Ready!"})
 
-    if hits["sexual_violence"]:
-        return 99, "sexual_violence", "Sexual violence content is not allowed.", hits
-    if hits["threat"]:
-        return 95, "threat", "Threat/violence content is not allowed.", hits
-    if hits["hate"]:
-        return 92, "hate", "Hate speech is not allowed.", hits
-    if hits["fraud"]:
-        return 80, "fraud", "Scam/fraud content is not allowed.", hits
-    if hits["drugs"]:
-        return 75, "drugs", "Drug-related content is restricted.", hits
-    if hits["profanity"]:
-        return 55, "profanity", "Please keep language respectful.", hits
-
-    return 5, "clean", "OK", hits
-
-@app.get("/")
-def root():
-    return jsonify(ok=True, service="YakSafe API")
-
-@app.get("/health")
+@app.route('/health')
 def health():
-    return jsonify(ok=True)
+    return jsonify({"status": "healthy", "hackathon": "ready"})
 
-@app.post("/moderate")
+@app.route('/moderate', methods=['POST'])
 def moderate():
     data = request.get_json(silent=True) or {}
     text = (data.get("text") or "").strip()
-
+    
     if not text:
-        return jsonify(safe=False, reason="Empty post", category="empty", toxicity_score=0), 400
-
-    toxicity_score, category, reason, hits = classify(text)
-    THRESHOLD_BLOCK = 70
-    safe = toxicity_score < THRESHOLD_BLOCK
-
+        return jsonify(safe=False, reason="Empty input"), 400
+    
+    score, category, reason = classify(text)
     return jsonify(
-        safe=safe,
-        reason=None if safe else reason,
+        safe=score < 80,
         category=category,
-        toxicity_score=toxicity_score,
-        provider="heuristic",
-        hits=hits,  # optional; you can remove for final demo
+        score=score,
+        reason=reason if score >= 80 else None
     )
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run()
