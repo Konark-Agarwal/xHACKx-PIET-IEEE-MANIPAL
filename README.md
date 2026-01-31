@@ -1,5 +1,3 @@
-Paste this as your README.md (it’s long + hackathon-ready, with setup, env, RLS SQL, troubleshooting, demo script). Good README templates recommend clear description, prerequisites, install/run steps, troubleshooting, and links/next steps.
-
 YakSafe
 YakSafe is a hyper‑local anonymous social feed inspired by Yik Yak, rebuilt as a hackathon MVP with an AI safety gate that blocks harmful posts before they reach the feed.
 
