@@ -1,82 +1,53 @@
 YakSafe
 YakSafe is a hyper‑local anonymous social feed inspired by Yik Yak, rebuilt as a hackathon MVP with an AI safety gate that blocks harmful posts before they reach the feed.
 
-Table of Contents
+Table of Contents:
 Why YakSafe
-
 Core Features
-
 Tech Stack
-
 Architecture Overview
-
 Project Structure
-
 Prerequisites
-
 Quickstart (Run Locally)
 
-Supabase Setup
-
+Supabase Setup:
 Database + RLS (Required)
-
 Environment Variables
-
 Demo Script (2–3 minutes)
-
 Troubleshooting
 
-Roadmap
-
+Roadmap:
 License
 
-Why YakSafe
+Why YakSafe:
 Anonymous + hyper‑local apps can be fun, but they often fail because moderation comes too late. YakSafe adds a “safety gate” check at posting time and includes basic community mechanics (zones, points, realtime feed).
 
-Core Features
+Core Features:
 AI safety gate (backend moderation API)
-
 Blocks unsafe text and returns a reason
-
 Allows safe posts to continue
-
 Hyper‑local zones
-
 Zone filter: Campus, Bagru, Jaipur
-
 Realtime feed updates
-
 New posts appear instantly using Supabase Realtime
-
 Gamification
-
 Posts earn YakPoints when safe
-
 Auth + Dashboard
-
 Login/Register (Supabase Auth)
-
 Dashboard shows quick stats (points, post count, reports)
 
-Tech Stack
+Tech Stack:
 Frontend: React + Vite
-
 Backend API: Python Flask (moderation service)
-
 Database/Auth/Realtime: Supabase (Postgres + RLS + Realtime)
 
-Architecture Overview
+Architecture Overview:
 User types a post in the frontend.
-
 Frontend calls the Flask API: POST /moderate with { text }.
-
 If safe → frontend inserts the post into Supabase posts.
-
 Supabase Realtime pushes INSERT events to other clients in the same zone.
 
-Project Structure
-text
-.
+Project Structure:
 ├── backend/
 │   ├── app.py
 │   ├── requirements.txt
@@ -91,18 +62,15 @@ text
     └── vite.config.js
 Prerequisites
 Node.js 18+
-
 Python 3.10+
-
 A Supabase project (URL + anon key)
 
-Quickstart (Run Locally)
+Quickstart: (Run Locally)
 1) Start backend (Flask)
 Open Terminal 1:
 
 bash
 cd backend
-
 python -m venv .venv
 
 # Windows PowerShell:
@@ -130,21 +98,14 @@ Create a posts table with (minimum recommended columns):
 id (uuid / bigint) primary key
 
 text (text)
-
 author (text)
-
 points (int)
-
 zone (text)
-
 user_id (uuid) ← important for RLS
-
 hidden (bool) default false
-
 created_at (timestamptz) default now()
 
 Optional:
-
 reported (bool) default false
 
 2) Enable Realtime (if you want live updates)
@@ -152,11 +113,9 @@ Supabase Dashboard → Database → Replication / Publications → ensure posts 
 
 Database + RLS (Required)
 If you see:
-
 new row violates row-level security policy for table "posts"
 
 It means Row Level Security is enabled but you don’t have policies that allow inserts/selects. Supabase RLS requires explicit policies per operation.
-​
 
 Run this SQL in Supabase SQL editor
 Adjust names only if your schema differs:
@@ -214,15 +173,11 @@ Demo Script (2–3 minutes)
 Open Home page and explain the idea: “Reviving hyper‑local anonymous feed with safety gate.”
 
 Go to /app.
-
 Select a zone (Campus/Bagru/Jaipur).
-
 Click Seed demo to populate posts.
 
 Try posting:
-
 Safe: This is awesome
-
 Unsafe: hate → should block with reason
 
 Open a second tab in the same zone → show realtime posts.
@@ -259,16 +214,10 @@ Create a folder:
 powershell
 mkdir screenshots
 Put images like:
-
 screenshots/home.png
-
 screenshots/feed.png
-
 screenshots/dashboard.png
-
 Add to README:
-
-text
 ## Screenshots
 
 
@@ -279,14 +228,12 @@ GitHub renders images fine with relative paths in Markdown.
 2) Add .env.example (2 minutes)
 Create frontend/.env.example so others can run it:
 
-text
 VITE_API_BASE=http://127.0.0.1:5000
 VITE_SUPABASE_URL=YOUR_SUPABASE_URL
 VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 3) Sanity-check “fresh clone works” (5 minutes)
 In a new folder:
 
-powershell
 git clone <your-repo-url>
 cd <repo>
 
@@ -297,7 +244,6 @@ pip install -r requirements.txt
 python app.py
 New terminal:
 
-powershell
 cd frontend
 npm install
 npm run dev
@@ -316,15 +262,11 @@ Add a short section “Demo in 30 seconds” + the exact URLs + default accounts
 
 Roadmap
 Better moderation model + per‑zone safety tuning
-
 Rate limiting + anti-spam
-
 Admin review queue for reports
-
 Reputation system beyond points
-
 “Hot / New / Rising” sorting + trending topics
 
-License
-MIT (recommended for hackathons). If you don’t want open source yet, change to “All rights reserved”.
+License 
+“All rights reserved”.
 
